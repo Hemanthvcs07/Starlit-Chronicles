@@ -28,20 +28,20 @@ const AuthModal = ({ isOpen, closeModal }: { isOpen: boolean; closeModal: () => 
   if (!isOpen) return null; // Don't render modal if not open
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-300 ease-in-out">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-300 ease-in-out text-black">
       <div className="bg-white p-8 rounded-lg shadow-xl max-w-lg w-full transform transition-transform duration-300 ease-in-out scale-100">
         <button
           onClick={closeModal}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-semibold transition-all duration-200 ease-in-out"
+          className="absolute top-4 right-4 hover:text-gray-700 text-2xl font-semibold transition-all duration-200 ease-in-out"
         >
           &times;
         </button>
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">{isSignUp ? "Create an Account" : "Welcome Back"}</h2>
+        <h2 className="text-3xl font-bold text-center mb-6">{isSignUp ? "Create an Account" : "Welcome Back"}</h2>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium">Email</label>
             <input
               type="email"
               value={email}

@@ -1,0 +1,72 @@
+export const postData = [
+  {
+    id: 1,
+    title: "Exploring the World",
+    content: "This is a fascinating post about exploring the world. It covers various aspects of travel, culture, and adventures in different places.",
+    image: "/images/post-image1.jpg",
+    background: "bg-blue-300",
+  },
+  {
+    id: 2,
+    title: "Travel Tips and Tricks",
+    content: "A post about travel tips, including packing strategies, local tips, and ways to make the most out of your trip.",
+    image: "/images/post-image2.jpg",
+    background: "bg-green-300",
+  },
+  {
+    id: 3,
+    title: "Hidden Gems in Europe",
+    content: "A journey through some of Europe's lesser-known but highly captivating travel spots.",
+    image: "/images/post-image3.jpg",
+    background: "bg-red-300",
+  },
+  {
+    id: 4,
+    title: "Cultural Insights",
+    content: "Exploring the deep cultural history and fascinating traditions around the world.",
+    image: "/images/post-image4.jpg",
+    background: "bg-yellow-300",
+  },
+  {
+    id: 5,
+    title: "Mountain Adventures",
+    content: "A post about exhilarating mountain adventures, covering hikes, views, and essential gear.",
+    image: "/images/post-image5.jpg",
+    background: "bg-purple-300",
+  },
+  {
+    id: 6,
+    title: "Urban Escapes",
+    content: "Discover the hidden retreats within bustling cities, from quiet cafes to serene parks.",
+    image: "/images/post-image6.jpg",
+    background: "bg-teal-300",
+  },
+  {
+    id: 7,
+    title: "Solo Travel Stories",
+    content: "Experiences and reflections from traveling solo around the world, with tips on staying safe and making connections.",
+    image: "/images/post-image7.jpg",
+    background: "bg-orange-300",
+  },
+  {
+    id: 8,
+    title: "Foodie's Paradise",
+    content: "A journey through global cuisine, featuring must-try dishes and culinary experiences.",
+    image: "/images/post-image8.jpg",
+    background: "bg-pink-300",
+  },
+  {
+    id: 9,
+    title: "Exploring Ancient Ruins",
+    content: "Insights into some of the world's most fascinating ancient ruins and historical sites.",
+    image: "/images/post-image9.jpg",
+    background: "bg-gray-300",
+  },
+  {
+    id: 10,
+    title: "Beach Escapes",
+    content: "The best beaches for relaxation, surfing, and discovering coastal beauty around the world.",
+    image: "/images/post-image10.jpg",
+    background: "bg-indigo-300",
+  }
+];

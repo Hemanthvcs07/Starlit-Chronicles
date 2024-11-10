@@ -2,14 +2,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import AuthModal from "../components/AuthModal"; 
-import Image from 'next/image'
-import starlit from './Vector.svg'
+import Image from 'next/image';
+import starlit from './Vector.svg';
 
 const Navbar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-800 p-5">
+    <nav className="p-5 fixed top-0 w-full z-50">
       <div className="flex justify-between items-center">
         {/* Logo */}
         <Link href="/">

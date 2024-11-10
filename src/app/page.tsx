@@ -1,7 +1,15 @@
+import HeroSection from '@/components/HeroSection';
+import EmblaCarousel from '../components/Carousel/EmblaCarousel';
+import ThreeColumnCardGrid from '@/components/ThreePost';
+import PostComponent from '@/components/PostComponent';
+
 const Home = () => {
   return (
     <div>
-      <h1 className="text-center text-4xl mt-8">Welcome to the Starlit Chronicles</h1>
+      <HeroSection/>
+      <ThreeColumnCardGrid/>
+      <PostComponent/>
+      <EmblaCarousel />
     </div>
   );
 };
