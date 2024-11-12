@@ -26,7 +26,7 @@ const About = () => {
           </p>
           <h2 className="text-2xl font-semibold mt-6">Let’s Connect</h2>
           <p>
-            The beauty of this journey is that it’s never truly solitary. I believe that the best stories are shared, and the most memorable moments are those experienced together. I look forward to hearing your thoughts, experiences, and the stories you want to share. Don’t hesitate to reach out via the <a href="/contact" className="text-blue-600 hover:text-blue-800">Contact page</a> or connect with me on social media.
+            The beauty of this journey is that it’s never truly solitary. I believe that the best stories are shared, and the most memorable moments are those experienced together. I look forward to hearing your thoughts, experiences, and the stories you want to share. Don’t hesitate to reach out ,connect with me on social media.
           </p>
         </section>
       </main>
