@@ -16,9 +16,9 @@ export default function RootLayout({
         />
         <title>Starlit Chronicles</title>
       </head>
-      <body className="antialiased ">
+      <body className="antialiased"> {/* Added responsive padding for sides */}
         <Navbar /> {/* Render Navbar globally */}
-        {children} {/* Render page content */}
+        <main className="container pt-16 px-4 sm:px-8 lg:px-6 mx-auto my-8">{children}</main> {/* Added margin-top and side padding */}
       </body>
     </html>
   );
