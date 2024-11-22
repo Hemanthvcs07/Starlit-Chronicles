@@ -47,24 +47,37 @@ const PostsList = () => {
               <h2 className="text-xl font-semibold text-gray-800 mb-2">
                 {post.title}
               </h2>
-              <p className="text-sm text-gray-500 mb-4">by {post.author}</p>
+              <p className="text-sm text-gray-500 mb-4">
+                by {post.author} | {new Date(post.datePosted).toLocaleDateString()}
+              </p>
               <p className="text-gray-700 truncate">{post.content}</p>
-              {post.image && (
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  width={300}
-                  height={200}
-                  className="mt-4 rounded-md"
-                />
+              {post.images?.length > 0 && (
+                <div className="mt-4">
+                  {post.images.map((image: string, index: number) => (
+                    <Image
+                      key={index}
+                      src={image}
+                      alt={post.title}
+                      width={300}
+                      height={200}
+                      className="mt-4 rounded-md"
+                    />
+                  ))}
+                </div>
               )}
               <div className="mt-4">
                 <p className="text-sm text-gray-500">
-                  {post.categories?.join(", ") || "Uncategorized"}
+                  Categories: {post.categories || "Uncategorized"}
                 </p>
                 <p className="text-sm text-gray-500">
                   Tags: {post.tags?.join(", ") || "No tags"}
                 </p>
+                <p className="text-sm text-gray-500">
+                  Reading Time: {post.readingTime} min
+                </p>
+                {post.isFeatured && (
+                  <p className="text-sm text-green-500 font-semibold">Featured</p>
+                )}
               </div>
             </div>
           ))}

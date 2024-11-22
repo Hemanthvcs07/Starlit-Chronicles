@@ -28,7 +28,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/[role]/[username]/page.tsx", "src/app/api/auth/login/route.ts", "src/app/admin/[username]/page.jsx", "src/lib/db.js", "src/models/post.js", "src/app/api/posts/route.js"  ],
+, "src/app/[role]/[username]/page.tsx", "src/app/api/auth/login/route.ts", "src/app/admin/[username]/page.jsx", "src/lib/db.js", "src/models/post.js", "src/app/api/posts/route.js", "src/utils/postUtils.j"  ],
   "exclude": [
     "node_modules"
   ]
