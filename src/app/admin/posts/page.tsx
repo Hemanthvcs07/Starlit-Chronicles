@@ -1,279 +1,278 @@
-'use client'
-import { useEffect, useState } from 'react';
-import { NextPage } from 'next';
+// "use client";
+// import { useState, useEffect } from "react";
+// import Image from "next/image";
 
-// Types
-interface BlogPost {
-  _id: string;
-  title: string;
-  slug: string;
-  content: string;
-  author: string;
-  categories: string;
-  tags: string[];
-  images: string[];
-  readingTime: number;
-  isFeatured: boolean;
-  datePosted: string;
-  seriesName?: string;
-  episodeNumber?: number;
-  parentSeries?: string;
-}
+// const BlogPostForm = ({ posts = [] }) => {
+//   const [newPost, setNewPost] = useState({
+//     title: "",
+//     content: "",
+//     author: "",
+//     categories: "",
+//     tags: [],
+//     images: [],
+//     isFeatured: false,
+//     seriesName: "",
+//     episodeNumber: "",
+//     parentSeries: "",
+//   });
 
-const BlogPostManager: NextPage = () => {
-  // States
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [newPost, setNewPost] = useState<BlogPost>({
-    _id: '',
-    title: '',
-    slug: '',
-    content: '',
-    author: '',
-    categories: '',
-    tags: [],
-    images: [],
-    readingTime: 0,
-    isFeatured: false,
-    datePosted: new Date().toISOString(),
-  });
-  const [editMode, setEditMode] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+//   const [seriesList, setSeriesList] = useState([]);
 
-  // Fetch all posts
-  useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/posts');
-        const data = await res.json();
-        setPosts(data.posts);
-      } catch (err) {
-        console.error('Error fetching posts:', err); // Log the error
-        setError('Error fetching posts.');
-      }
-      setLoading(false);
-    };
-    fetchPosts();
-  }, []);
+//   // Filter existing series from posts
+//   useEffect(() => {
+//     if (posts && posts.length > 0) {
+//       const filteredSeries = posts.filter(
+//         (post) => post.categories === "series"
+//       );
+//       const seriesData = filteredSeries.map((post) => ({
+//         name: post.seriesName,
+//         episodes: post.episodeNumber,
+//         lastEpisodeId: post._id,
+//       }));
 
-  // Handle input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewPost((prev) => ({ ...prev, [name]: value }));
-  };
+//       // Ensure no duplicate series names are added
+//       const uniqueSeries = Array.from(
+//         new Set(seriesData.map((s) => s.name))
+//       ).map((name) => seriesData.find((s) => s.name === name));
 
-  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setNewPost((prev) => ({ ...prev, [name]: value }));
-  };
+//       setSeriesList(uniqueSeries);
+//     }
+//   }, [posts]);
 
-  // Handle tags change (to ensure it's an array of strings)
-  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setNewPost((prev) => ({ ...prev, tags: value.split(',').map(tag => tag.trim()) }));
-  };
+//   const handleInputChange = (e) => {
+//     const { name, value } = e.target;
+//     setNewPost((prev) => ({ ...prev, [name]: value }));
+//   };
 
-  // Create post
-  const handleCreatePost = async () => {
-    try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newPost),
-      });
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setPosts((prev) => [data.post, ...prev]);
-        setNewPost({
-          _id: '',
-          title: '',
-          slug: '',
-          content: '',
-          author: '',
-          categories: '',
-          tags: [],
-          images: [],
-          readingTime: 0,
-          isFeatured: false,
-          datePosted: new Date().toISOString(),
-        });
-        setEditMode(false);
-      }
-    } catch (err) {
-      console.error('Error creating post:', err); // Log the error
-      setError('Error creating post.');
-    }
-  };
+//   const handleTagsChange = (e) => {
+//     const { value } = e.target;
+//     setNewPost((prev) => ({
+//       ...prev,
+//       tags: value.split(",").map((tag) => tag.trim()),
+//     }));
+//   };
 
-  // Update post
-  const handleUpdatePost = async (id: string) => {
-    try {
-      // Ensure you're sending the correct payload structure
-      const res = await fetch(`/api/posts`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...newPost, _id: id }),  // Ensure this matches the expected payload
-      });
-  
-      // Check if the response is ok
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error('Error response:', errorData);
-        setError(errorData.error || 'Unknown error');
-        return;
-      }
-  
-      // Parse the response data
-      const data = await res.json();
-  
-      // Update state and UI based on the response data
-      setPosts((prev) => prev.map((post) => (post._id === id ? data.post : post)));
-      setNewPost({
-        _id: '',
-        title: '',
-        slug: '',
-        content: '',
-        author: '',
-        categories: '',
-        tags: [],
-        images: [],
-        readingTime: 0,
-        isFeatured: false,
-        datePosted: new Date().toISOString(),
-      });
-      setEditMode(false);
-    } catch (err) {
-      console.error('Error updating post:', err);
-      setError('Error updating post.');
-    }
-  };  
+//   const handleImageUrlsChange = (e) => {
+//     const value = e.target.value;
+//     const imageUrls = value.split(",").map((url) => url.trim());
+//     setNewPost((prev) => ({ ...prev, images: imageUrls }));
+//   };
 
+//   const handleCategoryChange = (e) => {
+//     const { value } = e.target;
+//     setNewPost((prev) => ({ ...prev, categories: value }));
 
-  // Delete post
-  const handleDeletePost = async (id: string) => {
-    try {
-      console.log("Attempting to delete post with ID:", id);  // Log the ID being sent to the server
-  
-      // Make DELETE request with ID (not slug)
-      const res = await fetch('/api/posts', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id }),  // Send the ID (not slug) to the server
-      });
-  
-      // Check if the response is okay (status 200-299)
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error('Error response from server:', errorData);  // Log the error response
-        setError(errorData.error || 'Unknown error');
-        return;
-      }
-  
-      // Parse the response data
-      const data = await res.json();
-      console.log("Response from server:", data);  // Log the server's response
-  
-      if (data.message === 'Post deleted successfully!') {
-        // Remove the deleted post from local state
-        setPosts((prev) => prev.filter((post) => post._id !== id));  // Filter out post by ID
-        setError(null);  // Clear any previous errors
-      } else {
-        setError('Post deletion failed');
-      }
-    } catch (err) {
-      console.error('Error deleting post:', err);
-      setError('Error deleting post.');
-    }
-  };
-  
-  
-  // Render form for creating or editing a post
-  const renderForm = () => (
-    <div>
-      <h2>{editMode ? 'Edit Post' : 'Create New Post'}</h2>
-      <input
-        type="text"
-        name="title"
-        value={newPost.title}
-        onChange={handleInputChange}
-        placeholder="Title"
-      />
-      <input
-        type="text"
-        name="slug"
-        value={newPost.slug}
-        onChange={handleInputChange}
-        placeholder="Slug"
-      />
-      <textarea
-        name="content"
-        value={newPost.content}
-        onChange={handleTextAreaChange}
-        placeholder="Content"
-      />
-      <input
-        type="text"
-        name="author"
-        value={newPost.author}
-        onChange={handleInputChange}
-        placeholder="Author"
-      />
-      <input
-        type="text"
-        name="categories"
-        value={newPost.categories}
-        onChange={handleInputChange}
-        placeholder="Categories (comma separated)"
-      />
-      <input
-        type="text"
-        name="tags"
-        value={newPost.tags.join(', ')}
-        onChange={handleTagsChange}
-        placeholder="Tags (comma separated)"
-      />
-      <button onClick={editMode ? () => handleUpdatePost(newPost._id) : handleCreatePost}>
-        {editMode ? 'Update Post' : 'Create Post'}
-      </button>
-    </div>
-  );
+//     if (value !== "series") {
+//       setNewPost((prev) => ({
+//         ...prev,
+//         seriesName: "",
+//         episodeNumber: "",
+//         parentSeries: "",
+//       }));
+//     }
+//   };
 
-  return (
-    <div>
-      <h1>Blog Post Manager</h1>
+//   const handleSeriesChange = (e) => {
+//     const { value } = e.target;
+//     setNewPost((prev) => ({ ...prev, seriesName: value }));
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+//     const selectedSeries = seriesList.find((series) => series.name === value);
+//     if (selectedSeries) {
+//       setNewPost((prev) => ({
+//         ...prev,
+//         episodeNumber: selectedSeries.episodes + 1,
+//         parentSeries: selectedSeries.lastEpisodeId,
+//       }));
+//     }
+//   };
 
-      {/* Render form for creating or editing a post */}
-      {renderForm()}
+//   const handleCreatePost = async () => {
+//     try {
+//       const response = await fetch("/api/posts", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(newPost),
+//       });
 
-      {/* Post list */}
-      {loading ? (
-        <p>Loading posts...</p>
-      ) : (
-        <ul>
-          {posts.map((post) => (
-            <li key={post._id}>
-              <h3>{post.title}</h3>
-              <p>{post.content.slice(0, 100)}...</p>
-              <button onClick={() => { setEditMode(true); setNewPost(post); }}>Edit</button>
-              <button onClick={() => handleDeletePost(post._id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
+//       const data = await response.json();
+//       if (response.ok) {
+//         alert("Post created successfully!");
+//       } else {
+//         alert(`Error: ${data.error}`);
+//       }
+//     } catch (error) {
+//       console.error("Error creating post:", error);
+//       alert("An error occurred while creating the post.");
+//     }
+//   };
 
-export default BlogPostManager;
+//   const renderForm = () => (
+//     <div className="max-w-4xl mx-auto p-6">
+//       <h2 className="text-2xl font-bold mb-6">Create New Post</h2>
 
+//       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//         {/* Basic Fields */}
+//         <div className="flex flex-col">
+//           <label htmlFor="title" className="mb-2 font-semibold">
+//             Title
+//           </label>
+//           <input
+//             type="text"
+//             name="title"
+//             value={newPost.title}
+//             onChange={handleInputChange}
+//             className="p-2 border rounded-md"
+//             placeholder="Title"
+//           />
+//         </div>
+
+//         <div className="flex flex-col">
+//           <label htmlFor="author" className="mb-2 font-semibold">
+//             Author
+//           </label>
+//           <input
+//             type="text"
+//             name="author"
+//             value={newPost.author}
+//             onChange={handleInputChange}
+//             className="p-2 border rounded-md"
+//             placeholder="Author"
+//           />
+//         </div>
+
+//         <div className="flex flex-col md:col-span-2">
+//           <label htmlFor="content" className="mb-2 font-semibold">
+//             Content
+//           </label>
+//           <textarea
+//             name="content"
+//             value={newPost.content}
+//             onChange={handleInputChange}
+//             className="p-2 border rounded-md"
+//             placeholder="Content"
+//           />
+//         </div>
+
+//         <div className="flex flex-col">
+//           <label htmlFor="categories" className="mb-2 font-semibold">
+//             Category
+//           </label>
+//           <select
+//             name="categories"
+//             value={newPost.categories}
+//             onChange={handleCategoryChange}
+//             className="p-2 border rounded-md"
+//           >
+//             <option value="">Select Category</option>
+//             <option value="travel">Travel</option>
+//             <option value="music">Music</option>
+//             <option value="photography">Photography</option>
+//             <option value="series">Series</option>
+//           </select>
+//         </div>
+
+//         <div className="flex flex-col md:col-span-2">
+//           <label htmlFor="tags" className="mb-2 font-semibold">
+//             Tags (comma separated)
+//           </label>
+//           <input
+//             type="text"
+//             name="tags"
+//             value={newPost.tags.join(", ")}
+//             onChange={handleTagsChange}
+//             className="p-2 border rounded-md"
+//             placeholder="Tags (comma separated)"
+//           />
+//         </div>
+
+//         <div className="flex flex-col md:col-span-2">
+//           <label htmlFor="images" className="mb-2 font-semibold">
+//             Image URLs (comma separated)
+//           </label>
+//           <input
+//             type="text"
+//             name="images"
+//             value={newPost.images.join(", ")}
+//             onChange={handleImageUrlsChange}
+//             className="p-2 border rounded-md"
+//             placeholder="Enter image URLs"
+//           />
+//           <div className="mt-2 flex space-x-4">
+//   {newPost.images.map((image, index) => (
+//     image && (  // Check if the image URL is not empty
+//       <div key={index} className="flex-shrink-0">
+//         <Image
+//           src={image}
+//           alt={`preview-${index}`}
+//           width={100}
+//           height={100}
+//           className="rounded-lg" // Rounded corners
+//         />
+//       </div>
+//     )
+//   ))}
+// </div>
+//         </div>
+
+//         {/* Featured Checkbox */}
+//         <div className="flex items-center md:col-span-2">
+//           <label className="mr-2 font-semibold">Featured Post:</label>
+//           <input
+//             type="checkbox"
+//             checked={newPost.isFeatured}
+//             onChange={(e) =>
+//               setNewPost({ ...newPost, isFeatured: e.target.checked })
+//             }
+//           />
+//         </div>
+
+//         {/* Series-related Fields */}
+//         {newPost.categories === "series" && (
+//           <div className="md:col-span-2">
+//             <label htmlFor="seriesName" className="mb-2 font-semibold">
+//               Series Name
+//             </label>
+//             <select
+//               name="seriesName"
+//               value={newPost.seriesName}
+//               onChange={handleSeriesChange}
+//               className="p-2 border rounded-md"
+//             >
+//               <option value="">Select a series</option>
+//               {seriesList.map((series) => (
+//                 <option key={series.name} value={series.name}>
+//                   {series.name}
+//                 </option>
+//               ))}
+//             </select>
+
+//             {newPost.episodeNumber && (
+//               <div className="mt-2">
+//                 Episode Number: {newPost.episodeNumber}
+//               </div>
+//             )}
+
+//             {newPost.parentSeries && (
+//               <div className="mt-2">
+//                 Parent Series ID: {newPost.parentSeries}
+//               </div>
+//             )}
+//           </div>
+//         )}
+//       </div>
+
+//       <button
+//         onClick={handleCreatePost}
+//         className="mt-6 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-700"
+//       >
+//         Create Post
+//       </button>
+//     </div>
+//   );
+
+//   return <div>{renderForm()}</div>;
+// };
+
+// export default BlogPostForm;
