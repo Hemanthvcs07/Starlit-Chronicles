@@ -1,34 +1,34 @@
-import { NextResponse } from "next/server";
-import connectDB from "../../../../lib/db";
-import User from "../../../../models/user";
+// import { NextResponse } from "next/server";
+// import connectDB from "../../../../lib/db";
+// import User from "../../../../models/user";
 
-export async function POST(req) {
-  await connectDB();
+// export async function POST(req) {
+//   await connectDB();
 
-  try {
-    const { name, email, password } = await req.json();
+//   try {
+//     const { name, email, password } = await req.json();
 
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
-      );
-    }
+//     if (!name || !email || !password) {
+//       return NextResponse.json(
+//         { error: "All fields are required" },
+//         { status: 400 }
+//       );
+//     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json({ error: "Email already in use" }, { status: 400 });
-    }
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return NextResponse.json({ error: "Email already in use" }, { status: 400 });
+//     }
 
-    const user = new User({ name, email, password });
-    await user.save();
+//     const user = new User({ name, email, password });
+//     await user.save();
 
-    return NextResponse.json({ message: "User registered successfully" }, { status: 201 });
-  } catch (error) {
-    console.error("Error in signup route:", error.message);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+//     return NextResponse.json({ message: "User registered successfully" }, { status: 201 });
+//   } catch (error) {
+//     console.error("Error in signup route:", error.message);
+//     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+//   }
+// }
 
 
 

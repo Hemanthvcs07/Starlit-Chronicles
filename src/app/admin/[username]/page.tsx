@@ -1,219 +1,86 @@
-'use client'
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+"use client";
+
+import { useAuth } from "../hooks/useAuth"; // Custom hook for authentication
 import Link from "next/link";
+import UsersList from "../../user/components/UsersList";
+import { useRouter } from "next/navigation";
+import BlogForm from "../../posts/components/Form/BlogPostForm";
+import PostEdit from "../../posts/components/EditPost/PostList";
 
 const AdminPage = () => {
+  const { user, loading } = useAuth(); // Use the custom hook
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [usersList, setUsersList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [modalState, setModalState] = useState({ isOpen: false, user: null });
 
-  // Combined useEffect for user authentication and fetching users
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-
-    if (!token) {
-      router.push("/auth/login");
-      return;
-    }
-
-    const tokenData = JSON.parse(atob(token.split(".")[1]));
-    setUser({ role: tokenData.role, username: tokenData.username });
-
-    if (tokenData.role === "Admin") {
-      fetchUsers();
-    }
-  }, [router]);
-
-  // Function to fetch users
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/users");
-      if (!response.ok) throw new Error("Failed to fetch users");
-      const data = await response.json();
-      setUsersList(data);
-    } catch (error) {
-      console.error("Failed to fetch users:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle user logout
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     router.push("/auth/login");
   };
 
-  // Handle editing user and setting modal state
-  const handleModalOpen = (user = null) => {
-    setModalState({
-      isOpen: true,
-      user: user || { name: "", email: "", role: "User" },
-    });
-  };
-
-  // Handle deleting user
-  const handleDeleteUser = async (id) => {
-    try {
-      const response = await fetch("/api/users", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-
-      if (response.ok) {
-        setUsersList(usersList.filter(user => user._id !== id));
-      } else {
-        console.error("Failed to delete user");
-      }
-    } catch (error) {
-      console.error("Failed to delete user:", error.message);
-    }
-  };
-
-  // Handle user update (edit user)
-  const handleUpdateUser = async (updatedData) => {
-    try {
-      const response = await fetch("/api/users", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: modalState.user._id, ...updatedData }),
-      });
-
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUsersList(usersList.map(user => (user._id === updatedUser._id ? updatedUser : user)));
-        setModalState({ ...modalState, isOpen: false });
-      } else {
-        console.error("Failed to update user");
-      }
-    } catch (error) {
-      console.error("Failed to update user:", error.message);
-    }
-  };
-
-  // Handle form input changes for editing user
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setModalState({
-      ...modalState,
-      user: { ...modalState.user, [name]: value },
-    });
-  };
-
-  if (!user) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        <p className="text-lg font-semibold">Loading...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       {/* Navbar */}
-      <nav className="bg-gray-800 text-white p-4 flex justify-between items-center">
-        <div className="text-lg font-semibold">Starlit&apos;s Admin</div>
-        <button 
-          onClick={handleLogout} 
-          className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-all duration-200">
-          Logout
-        </button>
-        <Link href = '/admin/posts'>Posts</Link>
+      <nav className="bg-gray-800 py-4 px-6 shadow-md fixed w-full z-10 top-0 left-0">
+        <div className="flex justify-between items-center max-w-7xl mx-auto">
+          <div className="text-2xl font-bold text-blue-400">Starlit&apos;s Admin</div>
+          <div className="flex items-center space-x-6">
+            <Link
+              href="/admin/posts"
+              className="text-sm font-medium text-gray-300 hover:text-blue-400 transition-colors"
+            >
+              Posts
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg shadow-md transition-all"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
       </nav>
 
       {/* Main Content */}
-      <div className="flex justify-center items-center h-full py-12">
-        <div className="bg-gray-800 shadow-lg rounded-lg p-8 max-w-4xl w-full">
-          <h1 className="text-3xl font-bold text-gray-200 mb-4">Welcome, Admin {user.username}!</h1>
-          <p className="text-lg text-gray-400">Your role: <span className="font-semibold text-blue-300">{user.role}</span></p>
+      <main className="flex-grow container mx-auto px-6 py-24 space-y-12 pt-24">
+        {/* Welcome Section */}
+        <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <h1 className="text-3xl font-semibold text-center mb-4">
+            Welcome back, <span className="text-blue-400">{user?.username}</span>!
+          </h1>
+          <p className="text-center text-gray-300">Manage your content and users from this dashboard.</p>
+        </section>
 
-          {/* Display list of users */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-semibold text-gray-200 mb-4">Users List</h2>
+        {/* Users Management Section */}
+        <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold mb-4">Manage Users</h2>
+          <UsersList />
+        </section>
 
-            {/* Loading Spinner */}
-            {loading ? (
-              <div className="flex justify-center items-center h-48">
-                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            ) : (
-              <table className="min-w-full table-auto">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-2 text-left">Name</th>
-                    <th className="px-4 py-2 text-left">Email</th>
-                    <th className="px-4 py-2 text-left">Role</th>
-                    <th className="px-4 py-2 text-left">Joined</th>
-                    <th className="px-4 py-2 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usersList.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-700">
-                      <td className="px-4 py-2">{user.name}</td>
-                      <td className="px-4 py-2">{user.email}</td>
-                      <td className="px-4 py-2">{user.role}</td>
-                      <td className="px-4 py-2">{new Date(user.createdAt).toLocaleDateString()}</td>
-                      <td className="px-4 py-2">
-                        <button 
-                          onClick={() => handleModalOpen(user)} 
-                          className="text-blue-400 hover:text-blue-500 mr-4">Edit</button>
-                        <button 
-                          onClick={() => handleDeleteUser(user._id)} 
-                          className="text-red-400 hover:text-red-500">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-
-          {/* Modal for editing user */}
-          {modalState.isOpen && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-              <div className="bg-gray-800 p-6 rounded-lg w-96">
-                <h2 className="text-2xl font-semibold text-gray-200 mb-4">Edit User</h2>
-                <input 
-                  type="text" 
-                  name="name" 
-                  value={modalState.user.name} 
-                  onChange={handleInputChange} 
-                  className="w-full p-2 mb-4 border rounded bg-gray-700 text-white"
-                  placeholder="Name" 
-                />
-                <input 
-                  type="email" 
-                  name="email" 
-                  value={modalState.user.email} 
-                  onChange={handleInputChange} 
-                  className="w-full p-2 mb-4 border rounded bg-gray-700 text-white"
-                  placeholder="Email" 
-                />
-                <select 
-                  name="role" 
-                  value={modalState.user.role} 
-                  onChange={handleInputChange} 
-                  className="w-full p-2 mb-4 border rounded bg-gray-700 text-white">
-                  <option value="User">User</option>
-                  <option value="Admin">Admin</option>
-                </select>
-                <div className="flex justify-end">
-                  <button 
-                    onClick={() => handleUpdateUser(modalState.user)} 
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mr-4">
-                    Save Changes
-                  </button>
-                  <button 
-                    onClick={() => setModalState({ ...modalState, isOpen: false })} 
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
-                    Cancel
-                  </button>
-                </div>
-              </div>
+        {/* Blog Post Form Section */}
+        <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold mb-4">Create or Edit Blog Posts</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <BlogForm />
             </div>
-          )}
-        </div>
-      </div>
+            <div className="space-y-6">
+              <PostEdit />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 py-4 text-center text-gray-500 text-sm border-t border-gray-700 mt-auto">
+        &copy; {new Date().getFullYear()} Starlit. All Rights Reserved.
+      </footer>
     </div>
   );
 };

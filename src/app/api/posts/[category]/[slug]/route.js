@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 connectDB();
 
 export const GET = async (req, { params }) => {
-  // Await params access here
+  // Await the params before using them
   const { category, slug } = await params;
 
   try {

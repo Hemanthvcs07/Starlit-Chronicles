@@ -17,7 +17,7 @@ const SignupPage = () => {
     setLoading(true);
     setErrorMessage("");
 
-    const res = await fetch("/api/auth/signup", {
+    const res = await fetch("/api/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

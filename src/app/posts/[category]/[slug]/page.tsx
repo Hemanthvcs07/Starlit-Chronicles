@@ -32,6 +32,7 @@ const PostPage = () => {
 
   const fetchPostAndSuggestions = useCallback(async (category: string, slug: string) => {
     try {
+      // Fetch the specific post by category and slug
       const response = await fetch(`/api/posts/${category}/${slug}`);
       if (!response.ok) throw new Error(`Failed to fetch post: ${response.statusText}`);
 
@@ -40,10 +41,27 @@ const PostPage = () => {
 
       setPost(fetchedPost);
 
+      // Fetch categorized posts to generate suggestions
       const allPostsResponse = await fetch('/api/posts');
-      const { posts: allPosts } = await allPostsResponse.json();
+      const { featuredPosts, seriesPosts, travelPosts, musicPosts, photographyPosts } = await allPostsResponse.json();
+      console.log({ featuredPosts, seriesPosts, travelPosts, musicPosts, photographyPosts });
 
-      const filteredSuggestions = filterSuggestions(fetchedPost, allPosts);
+      // Filter out suggestions based on categories
+      let filteredSuggestions: Post[] = [];
+
+      // Example logic to choose suggestions based on current post's category
+      if (fetchedPost.categories === 'series') {
+        filteredSuggestions = seriesPosts.filter(post => post.slug !== fetchedPost.slug);
+      } else if (fetchedPost.categories === 'travel') {
+        filteredSuggestions = travelPosts.filter(post => post.slug !== fetchedPost.slug);
+      } else if (fetchedPost.categories === 'music') {
+        filteredSuggestions = musicPosts.filter(post => post.slug !== fetchedPost.slug);
+      } else if (fetchedPost.categories === 'photography') {
+        filteredSuggestions = photographyPosts.filter(post => post.slug !== fetchedPost.slug);
+      } else {
+        filteredSuggestions = featuredPosts.filter(post => post.slug !== fetchedPost.slug);
+      }
+
       setSuggestions(filteredSuggestions);
     } catch (err) {
       console.error(err);
@@ -52,17 +70,6 @@ const PostPage = () => {
       setLoading(false);
     }
   }, []);
-
-  const filterSuggestions = (currentPost: Post, allPosts: Post[]): Post[] => {
-    if (currentPost.categories === 'series') {
-      return allPosts.filter(
-        (post) => post.seriesName === currentPost.seriesName && post.slug !== currentPost.slug
-      );
-    }
-    return allPosts.filter(
-      (post) => post.slug !== currentPost.slug && !post.seriesName
-    );
-  };
 
   useEffect(() => {
     if (category && slug) {
@@ -137,9 +144,9 @@ const PostPage = () => {
         )}
       </div>
 
-      {/* Suggestions */}
+      {/* Suggestions Section */}
       {suggestions.length > 0 && (
-        <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="max-w-6xl mx-auto px-6 py-16 mt-16">
           <h2 className="text-3xl font-bold text-white mb-8">
             {post.categories === 'series' ? 'Next Episodes' : 'You Might Also Like'}
           </h2>

@@ -21,7 +21,7 @@ const blogPostSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true, // To avoid unnecessary spaces
+    trim: true,
   },
 
   content: {
@@ -56,6 +56,9 @@ const blogPostSchema = new mongoose.Schema({
 
   readingTime: {
     type: Number,
+    default: function () {
+      return this.content ? estimateReadingTime(this.content) : 0;
+    },
     required: true,
   },
 
@@ -69,51 +72,56 @@ const blogPostSchema = new mongoose.Schema({
     default: Date.now,
   },
 
-  // Fields related to "series" category
+  // Fields specific to "series" category
   seriesName: {
     type: String,
-    required: function () {
-      return this.categories === 'series';
+    validate: {
+      validator: function (value) {
+        return this.categories === 'series' ? !!value : true;
+      },
+      message: 'Series name is required for series posts.',
     },
     trim: true,
   },
 
   episodeNumber: {
     type: Number,
-    required: function () {
-      return this.categories === 'series';
+    min: [1, 'Episode number must be at least 1.'],
+    validate: {
+      validator: function (value) {
+        return this.categories === 'series' ? value > 0 : true;
+      },
+      message: 'Episode number must be greater than 0 for series posts.',
     },
-    min: 1,
   },
 
   parentSeries: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'BlogPost',
-    required: function () {
-      return this.categories === 'series' && this.episodeNumber > 1;
+    validate: {
+      validator: function (value) {
+        return this.categories === 'series' && this.episodeNumber > 1 ? !!value : true;
+      },
+      message: 'Parent series ID is required for episodes after the first in a series.',
     },
   },
 
   totalEpisodes: {
     type: Number,
-    default: 0,
-    required: function () {
-      return this.categories === 'series';
+    validate: {
+      validator: function (value) {
+        return this.categories === 'series' ? value >= this.episodeNumber : true;
+      },
+      message: 'Total episodes must be greater than or equal to the current episode number.',
     },
   },
 });
 
-// Pre-save hook to calculate reading time
+// Pre-save hook to calculate reading time if not explicitly set
 blogPostSchema.pre('save', function (next) {
-  if (this.content) {
+  if (this.content && !this.readingTime) {
     this.readingTime = estimateReadingTime(this.content);
   }
-  next();
-});
-
-// Pre-update hook to manage timestamps
-blogPostSchema.pre('findOneAndUpdate', function (next) {
-  this.set({ updatedAt: Date.now() });
   next();
 });
 

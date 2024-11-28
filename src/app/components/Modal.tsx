@@ -18,7 +18,7 @@ const Modal = ({ closeModal }: { closeModal: () => void }) => {
     setLoading(true);
     setErrorMessage("");
 
-    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
+    const endpoint = isLogin ? "/api/auth/login" : "/api/users";
     const body = isLogin
       ? { email, password }
       : { name, email, password };
