@@ -1,4 +1,3 @@
-// app/hooks/useAuth.ts
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -10,25 +9,44 @@ export const useAuth = () => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
+    // If no token, redirect to login page
     if (!token) {
       router.push("/auth/login");
       return;
     }
 
     try {
+      // Decode the JWT token (extract payload from token)
       const tokenData = JSON.parse(atob(token.split(".")[1]));
-      setUser({ role: tokenData.role, username: tokenData.username });
 
+      // Check if the token has expired or is invalid
+      const currentTime = Math.floor(Date.now() / 1000); // Get the current time in seconds
+      if (tokenData.exp < currentTime) {
+        console.error("Token expired");
+        localStorage.removeItem("authToken");
+        router.push("/auth/login");
+        return;
+      }
+
+      // Set the user data if the token is valid
+      setUser({
+        userId: tokenData.userId,
+        role: tokenData.role,
+        username: tokenData.username,
+      });
+
+      // Redirect non-admin users (optional: you can further extend this logic for other roles)
       if (tokenData.role !== "Admin") {
-        router.push("/auth/login"); // Redirect non-admin users
+        router.push("/auth/login");
       }
     } catch (error) {
       console.error("Error decoding token:", error);
+      localStorage.removeItem("authToken");
       router.push("/auth/login");
     } finally {
-      setLoading(false);
+      setLoading(false); // Set loading to false after checking
     }
-  }, [router, setUser]);
+  }, [router]);
 
   return { user, loading };
 };

@@ -1,16 +1,15 @@
-// src/components/PostsList/EditPostModal.js
 import React from "react";
 
-const EditPostModal = ({ isOpen, post, onClose, onUpdate, handleInputChange, handleArrayChange }) => {
+const EditPostModal = ({ isOpen, post, onClose, onUpdate, handleInputChange, handleArrayChange, handleToggle }) => {
   if (!isOpen || !post) return null;
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-full sm:w-11/12 md:w-3/4 lg:w-1/2 max-w-4xl">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-full sm:w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl">
         <h3 className="text-2xl font-semibold mb-6 text-center text-gray-800">Edit Post</h3>
 
         {/* Form Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Title */}
           <div className="form-group">
             <label htmlFor="title" className="text-gray-600">Post Title</label>
@@ -39,16 +38,17 @@ const EditPostModal = ({ isOpen, post, onClose, onUpdate, handleInputChange, han
             />
           </div>
 
-          {/* Content */}
-          <div className="form-group col-span-1 sm:col-span-2 md:col-span-3">
-            <label htmlFor="content" className="text-gray-600">Content</label>
-            <textarea
-              name="content"
-              value={post.content}
+          {/* Category */}
+          <div className="form-group">
+            <label htmlFor="categories" className="text-gray-600">Category</label>
+            <input
+              type="text"
+              name="categories"
+              value={post.categories}
               onChange={handleInputChange}
-              id="content"
+              id="categories"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black"
-              placeholder="Write the content here..."
+              placeholder="Enter category"
             />
           </div>
 
@@ -80,18 +80,20 @@ const EditPostModal = ({ isOpen, post, onClose, onUpdate, handleInputChange, han
             />
           </div>
 
-          {/* Category */}
-          <div className="form-group">
-            <label htmlFor="categories" className="text-gray-600">Category</label>
-            <input
-              type="text"
-              name="categories"
-              value={post.categories}
-              onChange={handleInputChange}
-              id="categories"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black"
-              placeholder="Enter category"
-            />
+          {/* Is Featured */}
+          <div className="form-group col-span-1 sm:col-span-2 lg:col-span-3">
+            <label htmlFor="isFeatured" className="text-gray-600">Featured</label>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="isFeatured"
+                checked={post.isFeatured}
+                onChange={handleToggle}
+                id="isFeatured"
+                className="h-6 w-6 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
+              />
+              <span className="ml-2 text-gray-600">Mark as featured</span>
+            </div>
           </div>
 
           {/* Series Specific Fields */}
@@ -102,7 +104,7 @@ const EditPostModal = ({ isOpen, post, onClose, onUpdate, handleInputChange, han
                 <input
                   type="text"
                   name="seriesName"
-                  value={post.seriesName}
+                  value={post.seriesName || ""}
                   onChange={handleInputChange}
                   id="seriesName"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black"
@@ -137,6 +139,19 @@ const EditPostModal = ({ isOpen, post, onClose, onUpdate, handleInputChange, han
               </div>
             </>
           )}
+
+          {/* Content */}
+          <div className="form-group col-span-1 sm:col-span-2 md:col-span-3">
+            <label htmlFor="content" className="text-gray-600">Content</label>
+            <textarea
+              name="content"
+              value={post.content}
+              onChange={handleInputChange}
+              id="content"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black"
+              placeholder="Write the content here..."
+            />
+          </div>
         </div>
 
         {/* Buttons */}

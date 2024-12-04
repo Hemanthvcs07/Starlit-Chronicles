@@ -6,10 +6,16 @@ import { NextResponse } from 'next/server';
 connectDB();
 
 export const GET = async (req, { params }) => {
-  // Await the params before using them
-  const { category, slug } = await params;
-
   try {
+    // Await params to ensure it resolves correctly
+    const resolvedParams = await params;
+    const { category, slug } = resolvedParams;
+
+    // Ensure category and slug are provided
+    if (!category || !slug) {
+      return NextResponse.json({ error: "Category and slug are required" }, { status: 400 });
+    }
+
     // Find a post by category and slug
     const post = await BlogPost.findOne({ categories: category, slug: slug });
 

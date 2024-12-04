@@ -1,14 +1,14 @@
 import jwt from "jsonwebtoken";
 
 // Use a proper secret key for JWT, make sure to set this in your environment variables
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key"; 
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 
 // Generate a JWT token
 export const generateToken = (user) => {
   return jwt.sign(
     { userId: user._id, role: user.role, username: user.name }, // Ensure 'username' is correctly passed
     JWT_SECRET,
-    { expiresIn: "1h" } // Token now expires in 1 hour instead of 15 seconds
+    { expiresIn: "1h" } // Token expires in 1 hour
   );
 };
 

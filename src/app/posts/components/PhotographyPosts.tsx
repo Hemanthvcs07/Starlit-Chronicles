@@ -1,58 +1,59 @@
 import { Post } from "../../../types/types";
-import Link from "next/link"; // Importing Link from Next.js
+import Link from "next/link";
+import Image from "next/image";
 
 interface PhotographyPostsProps {
-  posts: Post[]; // Accept the posts as props
+  posts: Post[];
 }
 
+const PhotographyPost: React.FC<{ post: Post }> = ({ post }) => (
+  <div
+    key={post._id}
+    className="flex flex-col md:flex-row items-center bg-transparent rounded-lg shadow-none overflow-hidden mb-12 p-4 md:p-6"
+  >
+    {/* Post Image */}
+    <div className="relative w-full md:w-1/2 h-[350px] md:h-[450px] rounded-lg overflow-hidden mb-4 md:mb-0">
+      <Image
+        src={post.images[0] || "/default-thumbnail.jpg"}
+        alt={post.title}
+        layout="fill"
+        objectFit="cover"
+        className="transition-transform duration-300 ease-in-out transform hover:scale-105"
+      />
+    </div>
+
+    {/* Post Content */}
+    <div className="w-full md:w-1/2 flex flex-col justify-between pl-0 md:pl-8 pt-4 md:pt-0">
+      <h3 className="text-4xl font-extrabold text-white mb-4">{post.title}</h3>
+      <p className="text-lg font-semibold text-gray-300 mb-4">{post.author}</p>
+      <p className="text-gray-200 text-lg mb-6 line-clamp-4">{post.content}</p>
+
+      <Link
+        href={`/posts/${post.categories}/${post.slug}`}
+        className="text-xl font-semibold text-blue-400 hover:text-blue-600 transition-all duration-200 ease-in-out"
+      >
+        Read more
+      </Link>
+    </div>
+  </div>
+);
+
 const PhotographyPosts: React.FC<PhotographyPostsProps> = ({ posts }) => {
+  // Sort posts by createdAt, descending order, and pick the most recent one
+  const mostRecentPost = [...posts].sort((a, b) => new Date(b.datePosted).getTime() - new Date(a.datePosted).getTime())[0];
+
   return (
-    <section className="mb-12">
-      <h2 className="text-4xl font-bold mb-6 text-center text-gray-800">Photography Posts</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
-        {posts.length === 0 ? (
-          <p className="col-span-full text-center text-lg text-gray-600">No posts available for this category.</p>
-        ) : (
-          posts.map((post) => (
-            <div
-              key={post._id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out"
-            >
-              {/* Post Image */}
-              <div
-                className="w-full h-72 bg-cover bg-center transition-transform duration-300 ease-in-out"
-                style={{
-                  backgroundImage: `url(${post.images[0] || "/default-thumbnail.jpg"})`,
-                }}
-              ></div>
-
-              {/* Post Content */}
-              <div className="p-6 flex flex-col">
-                <h3 className="text-2xl font-bold text-gray-800 truncate">{post.title}</h3>
-                <p className="text-sm text-gray-500 mt-2">{post.author}</p>
-                <p className="text-gray-700 mt-4 line-clamp-3">{post.content}</p>
-
-                <Link
-                  href={`/posts/${post.categories}/${post.slug}`}
-                  className="mt-4 text-blue-600 font-semibold hover:text-blue-800 transition-all duration-200 ease-in-out"
-                >
-                  Read more
-                </Link>
-              </div>
-            </div>
-          ))
-        )}
-
-        {/* Optional "See All" Link Card */}
-        {posts.length < 3 && (
-          <Link
-            href="/posts/photography"
-            className="col-span-full sm:col-span-1 md:col-span-1 lg:col-span-1 bg-black text-white rounded-xl shadow-lg flex items-center justify-center p-6"
-          >
-            <h3 className="text-2xl font-semibold">See All Photography Posts</h3>
-          </Link>
-        )}
-      </div>
+    <section className="mb-16 px-4 py-16">
+      <h2 className="text-6xl font-extrabold mb-12 text-center text-white">
+        Photography Highlights
+      </h2>
+      {mostRecentPost ? (
+        <PhotographyPost post={mostRecentPost} />
+      ) : (
+        <p className="text-center text-2xl text-gray-300">
+          No posts available for this category.
+        </p>
+      )}
     </section>
   );
 };

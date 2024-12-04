@@ -32,6 +32,11 @@ const PostsList = () => {
     }));
   };
 
+  const handleToggle = (e) => {
+    const { name, checked } = e.target;
+    setCurrentPost((prev) => ({ ...prev, [name]: checked }));
+  };
+
   const updatePost = async () => {
     if (!currentPost) return;
 
@@ -126,6 +131,7 @@ const PostsList = () => {
         onUpdate={updatePost}
         handleInputChange={handleInputChange}
         handleArrayChange={handleArrayChange}
+        handleToggle={handleToggle} 
       />
     </div>
   );

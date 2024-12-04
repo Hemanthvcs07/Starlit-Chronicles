@@ -7,6 +7,11 @@ const nextConfig = {
         hostname: "i.pinimg.com",
         pathname: "/**", // Allows all paths under the domain
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com", // Adding Unsplash
+        pathname: "/**", // Allows all paths under the domain
+      },
     ],
   },
 };

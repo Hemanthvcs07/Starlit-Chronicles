@@ -9,6 +9,13 @@ export async function POST(req) {
   try {
     const { email, password } = await req.json();
 
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
@@ -21,15 +28,24 @@ export async function POST(req) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    // Generate a JWT token
+    // Generate JWT token
     const token = generateToken(user);
 
+    // Set the token in the response cookie (optional)
+    // This is an optional step if you want to set the token in cookies instead of sending it in the response body.
+    // You can use httpOnly cookies for security if using cookies to store the token.
+    // e.g. Set the token in an HttpOnly cookie: 
+    // NextResponse.cookie("authToken", token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+
     return NextResponse.json(
-      { message: "Login successful", token },
+      { message: "Login successful", token }, 
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.log(error);
+    
+    // Handle unexpected errors gracefully
+    return NextResponse.json({ error: "An error occurred, please try again later" }, { status: 500 });
   }
 }
 

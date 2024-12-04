@@ -11,8 +11,8 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({ posts, maxDisplay = 3 }) 
   const displayedPosts = posts.slice(0, maxDisplay);
 
   return (
-    <section className="mb-12 min-h-[400px]">
-      <h2 className="text-4xl font-bold mb-6">Featured Posts</h2>
+    <section className=" min-h-[400px]" aria-labelledby="featured-posts">
+      <h2 id="featured-posts" className="text-4xl font-bold mb-6">Featured Posts</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Left Tile (Large) */}
         <div className="md:col-span-1 lg:col-span-2 h-full min-h-[250px]">
@@ -22,16 +22,11 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({ posts, maxDisplay = 3 }) 
 
         {/* Right Tiles (Stacked on small, side-by-side on large) */}
         <div className="md:col-span-1 lg:col-span-1 h-full flex flex-col gap-y-6">
-          {displayedPosts[1] && (
-            <div className="h-full min-h-[250px]">
-              <Card post={displayedPosts[1]} />
+          {displayedPosts.slice(1).map((post, index) => (
+            <div key={index} className="h-full min-h-[250px]">
+              <Card post={post} />
             </div>
-          )}
-          {displayedPosts[2] && (
-            <div className="h-full min-h-[250px]">
-              <Card post={displayedPosts[2]} />
-            </div>
-          )}
+          ))}
         </div>
       </div>
     </section>

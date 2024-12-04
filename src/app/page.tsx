@@ -1,11 +1,13 @@
 import Navbar from "./components/Navbar";
-import PostList from './posts/components/PostsList';
+import PostList from "./posts/components/PostsList";
 
-// Fetch posts server-side
+// Base API URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const fetchPosts = async () => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
-      cache: "no-store", // Ensures fresh data on every request
+    const response = await fetch(`${API_URL}/api/posts`, {
+      cache: "no-store", // Ensure fresh data on every request
     });
 
     if (!response.ok) {
@@ -15,27 +17,28 @@ const fetchPosts = async () => {
     return await response.json();
   } catch (error) {
     console.error("Error fetching posts:", error);
-    return {
-      featuredPosts: [],
-      seriesPosts: [],
-      travelPosts: [],
-      musicPosts: [],
-      photographyPosts: [],
-    };
+    return null; // Return null on error
   }
 };
 
 const HomePage = async () => {
-  // Fetch posts when the page loads
+  // Fetch posts server-side
   const posts = await fetchPosts();
 
   return (
     <div>
-      <Navbar />  {/* Add Navbar component */}
-      
+      {/* Navbar */}
+      <Navbar />
+
       <main>
-        {/* Pass posts data to PostList component */}
-        <PostList posts={posts} />
+        {/* Render PostList only if posts are available */}
+        {posts ? (
+          <PostList posts={posts} />
+        ) : (
+          <p className="text-center mt-4 text-gray-500">
+            Unable to load posts. Please try again later.
+          </p>
+        )}
       </main>
     </div>
   );

@@ -1,261 +1,134 @@
-import connectDB from '../../../lib/db';
-import BlogPost from '../../../models/post';
-import { NextResponse } from 'next/server';
+import connectDB from "../../../lib/db";
+import BlogPost from "../../../models/post";
+import { NextResponse } from "next/server";
 
 connectDB();
 
+// Helper: Create consistent response
+const createResponse = (message, data = null, status = 200) => 
+  NextResponse.json({ status, message, data }, { status });
+
+// Helper: Validate required fields
+const validateFields = (fields, data) => {
+  const missingFields = fields.filter((field) => !data[field]);
+  if (missingFields.length > 0) {
+    return `Missing required fields: ${missingFields.join(", ")}`;
+  }
+  return null;
+};
+
+// GET: Fetch all posts
 export const GET = async () => {
   try {
-    const posts = await BlogPost.find(); // Fetch all posts
+    const posts = (await BlogPost.find()) || []; // Ensure posts is always an array
 
-    const featuredPosts = posts.filter((post) => post.isFeatured);
-    const seriesPosts = posts.filter((post) => post.categories === 'series');
-    const travelPosts = posts.filter((post) => post.categories === 'travel');
-    const musicPosts = posts.filter((post) => post.categories === 'music');
-    const photographyPosts = posts.filter((post) => post.categories === 'photography');
+    // Initialize categories
+    const categories = {
+      featuredPosts: [],
+      seriesPosts: [],
+      travelPosts: [],
+      musicPosts: [],
+      photographyPosts: [],
+    };
 
-    return NextResponse.json({
-      featuredPosts,
-      seriesPosts,
-      travelPosts,
-      musicPosts,
-      photographyPosts,
-    });
+    // Categorize posts
+    if (Array.isArray(posts)) {
+      posts.forEach((post) => {
+        if (post.isFeatured) categories.featuredPosts.push(post);
+        if (post.categories === "series") categories.seriesPosts.push(post);
+        if (post.categories === "travel") categories.travelPosts.push(post);
+        if (post.categories === "music") categories.musicPosts.push(post);
+        if (post.categories === "photography") categories.photographyPosts.push(post);
+      });
+    } else {
+      console.error("Posts is not an array:", posts);
+    }
+
+    return NextResponse.json(categories);
   } catch (error) {
-    console.error('Error fetching posts:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch posts.' },
-      { status: 500 }
-    );
+    console.error("Error fetching posts:", error);
+    return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
   }
 };
 
 
+// POST: Create a new post
 export const POST = async (req) => {
   try {
-    // Parse the incoming JSON request body
-    const {
-      title,
-      slug,
-      content,
-      author,
-      categories,
-      tags = '', // Default to empty string if tags are missing
-      images = '', // Default to empty string if images are missing
-      isFeatured,
-      seriesName,
-      episodeNumber,
-      parentSeries,
-      totalEpisodes, // Only for series posts
-    } = await req.json();
+    const data = await req.json();
+    const requiredFields = ["title", "content", "author", "categories", "tags"];
+    const validationError = validateFields(requiredFields, data);
 
-    // Validate required fields
-    if (!title || !content || !author || !categories || !tags) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    if (validationError) {
+      return createResponse(validationError, null, 400);
     }
 
-    // Prepare the base post data object
+    // Prepare the base post data
     const postData = {
-      title,
-      slug,
-      content,
-      author,
-      categories,
-      tags: tags.split(',').map((tag) => tag.trim()), // Split and trim tags
-      images: images ? images.split(',').map((image) => image.trim()) : [], // Split and trim image URLs, handle missing images
-      isFeatured,
+      ...data,
+      tags: data.tags.split(",").map((tag) => tag.trim()),
+      images: data.images ? data.images.split(",").map((img) => img.trim()) : [],
     };
 
-    // If the category is 'series', include series-specific fields
-    if (categories === 'series') {
-      // Validate that seriesName is provided for series posts
-      if (!seriesName) {
-        return NextResponse.json(
-          { error: 'Series name is required for series posts.' },
-          { status: 400 }
-        );
+    // Series-specific validation
+    if (data.categories === "series") {
+      if (!data.seriesName) {
+        return createResponse("Series name is required for series posts", null, 400);
       }
-
-      postData.seriesName = seriesName;
-
-      // Ensure valid episodeNumber
-      if (!episodeNumber || episodeNumber < 1) {
-        return NextResponse.json(
-          { error: 'Episode number is required and must be greater than 0.' },
-          { status: 400 }
-        );
+      if (!data.episodeNumber || data.episodeNumber < 1) {
+        return createResponse("Episode number must be greater than 0", null, 400);
       }
-      postData.episodeNumber = episodeNumber;
-
-      // Add parentSeries and totalEpisodes only if applicable
-      if (parentSeries) postData.parentSeries = parentSeries;
-
-      // Validate and set totalEpisodes only for series posts
-      if (totalEpisodes && totalEpisodes < episodeNumber) {
-        return NextResponse.json(
-          { error: 'Total episodes cannot be less than episode number.' },
-          { status: 400 }
-        );
+      if (data.totalEpisodes && data.totalEpisodes < data.episodeNumber) {
+        return createResponse("Total episodes cannot be less than episode number", null, 400);
       }
-      if (totalEpisodes) postData.totalEpisodes = totalEpisodes;
     }
 
-    // Create and save the new blog post document
     const newPost = new BlogPost(postData);
     await newPost.save();
 
-    // Return a success response
-    return NextResponse.json(
-      { message: 'Post created successfully', post: newPost },
-      { status: 201 }
-    );
+    return createResponse("Post created successfully", newPost, 201);
   } catch (error) {
-    console.error('Error creating post:', error);
-    return NextResponse.json(
-      { error: 'Error creating the post.' },
-      { status: 500 }
-    );
+    console.error("Error creating post:", error);
+    return createResponse("Error creating the post", null, 500);
   }
 };
 
-
-
-// // api/posts/route.js
-
-// import connectDB from '../../../lib/db';
-// import BlogPost from '../../../models/post';
-// import { NextResponse } from 'next/server';
-
-// connectDB(); // Ensure DB connection is established
-
-// // GET all posts
-// export const GET = async () => {
-//   try {
-//     const posts = await BlogPost.find().sort({ datePosted: -1 }); // Get posts sorted by the latest
-//     return NextResponse.json({ posts });
-//   } catch (error) {
-//     console.error("Error fetching posts:", error);
-//     return NextResponse.json({ error: "Failed to fetch posts." }, { status: 500 });
-//   }
-// };
-
-// // POST a new blog post
-// export const POST = async (req) => {
-//   try {
-//     const { title, slug, content, author, categories, tags, images, isFeatured, seriesName, episodeNumber, parentSeries } = await req.json();
-
-//     // Validate required fields
-//     if (!title || !slug || !content || !author || !categories || !tags) {
-//       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-//     }
-
-//     // Create new blog post
-//     const newPost = new BlogPost({
-//       title,
-//       slug,
-//       content,
-//       author,
-//       categories,
-//       tags,
-//       images,
-//       isFeatured,
-//       seriesName,
-//       episodeNumber,
-//       parentSeries,
-//     });
-
-//     await newPost.save();
-//     return NextResponse.json({ message: 'Blog post created successfully!', post: newPost }, { status: 201 });
-//   } catch (error) {
-//     console.error("Error creating post:", error);
-//     return NextResponse.json({ error: 'Failed to create post.' }, { status: 500 });
-//   }
-// };
-
-// PUT (Update a post by slug)
-export async function PUT(req) {
+// PUT: Update a post
+export const PUT = async (req) => {
   try {
-    // Parse the request body
-    const updatedData = await req.json();
-    console.log("Updated Data: ", updatedData);
-
-    // Ensure slug is provided
-    if (!updatedData.slug) {
-      return new Response(JSON.stringify({ error: 'Slug is required to update a post' }), {
-        status: 400,
-      });
+    const data = await req.json();
+    if (!data.slug) {
+      return createResponse("Slug is required to update a post", null, 400);
     }
 
-    // Find and update the post
-    const post = await BlogPost.findOneAndUpdate(
-      { slug: updatedData.slug },
-      updatedData,
-      { new: true }
-    );
-
-    if (!post) {
-      return new Response(JSON.stringify({ error: 'Post not found' }), {
-        status: 404,
-      });
+    const updatedPost = await BlogPost.findOneAndUpdate({ slug: data.slug }, data, { new: true });
+    if (!updatedPost) {
+      return createResponse("Post not found", null, 404);
     }
 
-    // Return the updated post
-    return new Response(JSON.stringify({ post }), {
-      status: 200,
-    });
-  } catch (err) {
-    console.error('Error in PUT request:', err);
-    return new Response(JSON.stringify({ error: 'Error updating post', message: err.message }), {
-      status: 500,
-    });
+    return createResponse("Post updated successfully", updatedPost, 200);
+  } catch (error) {
+    console.error("Error updating post:", error);
+    return createResponse("Error updating the post", null, 500);
   }
-}
+};
 
-// DELETE a post by slug
-
+// DELETE: Remove a post by ID
 export const DELETE = async (req) => {
   try {
-    // Parse the request body to get the ID
     const { id } = await req.json();
-    console.log("Received request to delete post with ID:", id);  // Log ID
-
-    // Ensure id is provided
     if (!id) {
-      console.log("Error: ID not provided in the request.");
-      return new NextResponse(
-        JSON.stringify({ error: 'ID is required to delete a post' }),
-        { status: 400 }
-      );
+      return createResponse("ID is required to delete a post", null, 400);
     }
 
-    // Find and delete the post by ID
-    const post = await BlogPost.findOneAndDelete({ _id: id });
-
-    // Log the result of the deletion query
-    console.log("Post deletion result:", post);
-
-    // If post is not found, return 404 and log the error
-    if (!post) {
-      console.log(`No post found with ID: ${id}`);
-      return new NextResponse(
-        JSON.stringify({ error: 'Post not found' }),
-        { status: 404 }
-      );
+    const deletedPost = await BlogPost.findOneAndDelete({ _id: id });
+    if (!deletedPost) {
+      return createResponse("Post not found", null, 404);
     }
 
-    // Return success message if deletion was successful
-    return new NextResponse(
-      JSON.stringify({ message: 'Post deleted successfully!' }),
-      { status: 200 }
-    );
-  } catch (err) {
-    console.error('Error in DELETE request:', err);
-    return new NextResponse(
-      JSON.stringify({ error: 'Error deleting post', message: err.message }),
-      { status: 500 }
-    );
+    return createResponse("Post deleted successfully", deletedPost, 200);
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return createResponse("Error deleting the post", null, 500);
   }
 };

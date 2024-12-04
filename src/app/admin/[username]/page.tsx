@@ -8,7 +8,7 @@ import BlogForm from "../../posts/components/Form/BlogPostForm";
 import PostEdit from "../../posts/components/EditPost/PostList";
 
 const AdminPage = () => {
-  const { user, loading } = useAuth(); // Use the custom hook
+  const { user, loading } = useAuth(); // Use the custom hook to get the user
   const router = useRouter();
 
   const handleLogout = () => {
@@ -22,6 +22,12 @@ const AdminPage = () => {
         <p className="text-lg font-semibold">Loading...</p>
       </div>
     );
+  }
+
+  // Redirect to login if user is not an admin
+  if (user?.role !== "Admin") {
+    router.push("/auth/login");
+    return null; // Prevent rendering if user is unauthorized
   }
 
   return (
@@ -59,13 +65,11 @@ const AdminPage = () => {
 
         {/* Users Management Section */}
         <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">Manage Users</h2>
           <UsersList />
         </section>
 
         {/* Blog Post Form Section */}
         <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">Create or Edit Blog Posts</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <BlogForm />
